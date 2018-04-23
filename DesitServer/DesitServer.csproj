@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.6" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="WebSocketManager">
+      <HintPath>packages\WebSocketManager.dll</HintPath>
+    </Reference>
+    <Reference Include="WebSocketManager.Common">
+      <HintPath>packages\WebSocketManager.Common.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

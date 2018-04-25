@@ -38,7 +38,7 @@ namespace DesitServer
             }
 
             app.UseMvc();
-
+            
             app.UseFileServer();
             app.UseStaticFiles();
             app.UseWebSockets();

@@ -14,11 +14,15 @@
 
   <ItemGroup>
     <Reference Include="WebSocketManager">
-      <HintPath>packages\WebSocketManager.dll</HintPath>
+      <HintPath>..\..\DesitServer\DesitServer\packages\WebSocketManager.dll</HintPath>
     </Reference>
     <Reference Include="WebSocketManager.Common">
-      <HintPath>packages\WebSocketManager.Common.dll</HintPath>
+      <HintPath>..\..\DesitServer\DesitServer\packages\WebSocketManager.Common.dll</HintPath>
     </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\" />
   </ItemGroup>
 
 </Project>

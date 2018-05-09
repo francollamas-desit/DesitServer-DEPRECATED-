@@ -31,5 +31,10 @@ namespace DesitServer.Messages
 
             await base.OnDisconnected(socket);
         }
+
+        public bool ConnectCM(WebSocket socket, string id, string password)
+        {
+            return true;
+        }
     }
 }

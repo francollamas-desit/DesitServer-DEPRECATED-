@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using DesitServer.Messages;
+using DesitServer.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -15,6 +16,7 @@ namespace DesitServer
 {
     public class Startup
     {
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -27,6 +29,8 @@ namespace DesitServer
         {
             services.AddMvc();
             services.AddWebSocketManager();
+
+            services.AddSingleton<DbAccess>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -43,6 +47,8 @@ namespace DesitServer
             app.UseStaticFiles();
             app.UseWebSockets();
             app.MapWebSocketManager("/messages", sv.GetService<MessagesHandler>());
+
+
         }
     }
 }

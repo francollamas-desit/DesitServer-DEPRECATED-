@@ -7,6 +7,8 @@ namespace DesitServer.Models
 {
     public class DbAccess
     {
+        public string ConnectionString { get; set; }
+
         
     }
 }

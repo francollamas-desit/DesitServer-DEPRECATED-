@@ -5,6 +5,7 @@ using System.Net.WebSockets;
 using System.Threading.Tasks;
 using WebSocketManager;
 using WebSocketManager.Common;
+using DesitServer.Models;
 
 namespace DesitServer.Messages
 {
@@ -32,9 +33,9 @@ namespace DesitServer.Messages
             await base.OnDisconnected(socket);
         }
 
-        public bool ConnectCM(WebSocket socket, string id, string password)
+        public string ConnectCM(WebSocket socket, string id, string password)
         {
-            return true;
+            return CentralMonitoreo.getCentralMonitoreo(id).Central_ID.ToString();
         }
     }
 }

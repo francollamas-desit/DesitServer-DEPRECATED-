@@ -13,31 +13,32 @@ namespace DesitServer.Models
 
         public static CentralMonitoreo getCentralMonitoreo(String id)
         {
-            
+            CentralMonitoreo central = new CentralMonitoreo();
 
-            MySqlConnection connection = new MySqlConnection("server=localhost;port=3306;database=desitserver;user=root;password=251436;sslmode=none");
-
-            MySqlCommand cmd = new MySqlCommand();
-            cmd.Connection = connection;
-            cmd.CommandText = "SELECT * FROM centrales WHERE central_ID ='" + id + "'";
-            cmd.CommandType = System.Data.CommandType.Text;
-
-            connection.Open();
-
-            String idd = "";
-            String contraseña = "";
-
-            var reader = cmd.ExecuteReader();
-            while (reader.Read())
+            using (MySqlConnection connection = new MySqlConnection(DbAccess.Db.ConnectionString))
             {
-                idd = reader["central_ID"].ToString();
-                contraseña = reader["contraseña"].ToString();
+                MySqlCommand cmd = new MySqlCommand();
+                cmd.Connection = connection;
+                cmd.CommandText = "SELECT * FROM centrales WHERE central_ID = @Id";
+                cmd.CommandType = System.Data.CommandType.Text;
+
+                cmd.Parameters.AddWithValue("@Id", id);
+
+                connection.Open();
+
+                using (MySqlDataReader reader = cmd.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        central.Central_ID = reader["central_ID"].ToString();
+                        central.Contraseña = reader["contraseña"].ToString();
+
+                    }
+                    else return null;
+                }
             }
-
-            reader.Close();
-            connection.Close();
-
-            return new CentralMonitoreo() { Central_ID = idd, Contraseña = contraseña };
+       
+            return central;
         }
        
 

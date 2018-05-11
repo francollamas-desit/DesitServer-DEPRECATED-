@@ -7,7 +7,24 @@ namespace DesitServer.Models
 {
     public class DbAccess
     {
+
+        private static DbAccess instance;
+
+        public static DbAccess Db {
+            get
+            {
+                if (instance == null) instance = new DbAccess();
+                return instance;
+            }
+        }
+
         public string ConnectionString { get; set; }
+
+        public DbAccess()
+        {
+
+        }
+
 
         
     }

@@ -33,9 +33,24 @@ namespace DesitServer.Messages
             await base.OnDisconnected(socket);
         }
 
-        public string ConnectCM(WebSocket socket, string id, string password)
+        /**
+         * Conecta una central de monitoreo.
+         */
+        public bool ConnectCM(WebSocket socket, string id, string contraseña)
         {
-            return CentralMonitoreo.getCentralMonitoreo(id).Central_ID.ToString();
+            /*CentralMonitoreo central = CentralMonitoreo.getCentralMonitoreo(id);
+            if (central != null && id.Equals(central.Central_ID) && contraseña.Equals(central.Contraseña))
+            {
+                return true;
+            }
+            
+            WebSocketConnectionManager.RemoveSocket(WebSocketConnectionManager.GetId(socket));
+
+            return false;*/
+
+            Barrio b = new Barrio() { Nombre = "Barrio Prueba 2"};
+
+            return true;
         }
     }
 }

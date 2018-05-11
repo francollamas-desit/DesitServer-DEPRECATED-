@@ -29,8 +29,6 @@ namespace DesitServer
         {
             services.AddMvc();
             services.AddWebSocketManager();
-
-            services.AddSingleton<DbAccess>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -48,6 +46,8 @@ namespace DesitServer
             app.UseWebSockets();
             app.MapWebSocketManager("/messages", sv.GetService<MessagesHandler>());
 
+            // TODO: por ahora armé un singleton por mi cuenta, pero debería ver como usarlo como un servicio
+            DbAccess.Db.ConnectionString = Configuration.GetConnectionString("DefaultConnection");
 
         }
     }

@@ -6,20 +6,60 @@ using MySql.Data.MySqlClient;
 
 namespace DesitServer.Models
 {
-    public class CentralMonitoreo
+    public class CentralMonitoreo : IModel
     {
+        // Diccionario de Centrales de Monitoreo
+        private static Dictionary<string, CentralMonitoreo> Centrales = new Dictionary<string, CentralMonitoreo>();
+
         public String Central_ID { get; set; }
         public String Contraseña { get; set; }
+        public Barrio Barrio { get; set; }
 
-        public static CentralMonitoreo getCentralMonitoreo(String id)
+        public static List<CentralMonitoreo> GetAll()
         {
-            CentralMonitoreo central = new CentralMonitoreo();
+            List<CentralMonitoreo> centrales = new List<CentralMonitoreo>();
 
             using (MySqlConnection connection = new MySqlConnection(DbAccess.Db.ConnectionString))
             {
                 MySqlCommand cmd = new MySqlCommand();
                 cmd.Connection = connection;
-                cmd.CommandText = "SELECT * FROM centrales WHERE central_ID = @Id";
+                cmd.CommandText = "SELECT * FROM central";
+                cmd.CommandType = System.Data.CommandType.Text;
+                connection.Open();
+
+                using (MySqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        String id = reader["central_ID"].ToString();
+
+                        // Si existe la central en memoria, lo cargo
+                        Centrales.TryGetValue(id, out CentralMonitoreo central);
+
+                        // Actualiza los datos de la central (sea nueva o recien creada en memoria)
+                        central.Central_ID = id;
+                        central.Contraseña = reader["contrasenia"].ToString();
+                        central.Barrio = Barrio.Get(Convert.ToInt32(reader["barrio_ID"]));
+
+                        // Agrego el barrio a la lista de retorno
+                        centrales.Add(central);
+
+                        // Cabe aclarar que para un getAll() no necesitamos guardarlo en el diccionario si no existía ya...
+                    }
+                }
+            }
+
+            return centrales;
+        }
+
+        public static CentralMonitoreo Get(String id)
+        {
+            CentralMonitoreo central;
+            using (MySqlConnection connection = new MySqlConnection(DbAccess.Db.ConnectionString))
+            {
+                MySqlCommand cmd = new MySqlCommand();
+                cmd.Connection = connection;
+                cmd.CommandText = "SELECT * FROM central WHERE central_ID = @Id";
                 cmd.CommandType = System.Data.CommandType.Text;
 
                 cmd.Parameters.AddWithValue("@Id", id);
@@ -30,17 +70,86 @@ namespace DesitServer.Models
                 {
                     if (reader.Read())
                     {
-                        central.Central_ID = reader["central_ID"].ToString();
-                        central.Contraseña = reader["contraseña"].ToString();
+                        // Si ya está en el Diccionario, obtiene el objeto, de lo contrario, lo crea
+                        if (!Centrales.TryGetValue(id, out central))
+                        {
+                            central = new CentralMonitoreo();
+                            Centrales[id] = central;
+                        }
 
+                        // Actualiza los datos de la central (sea nuevo o recien creado en memoria)
+                        central.Central_ID = reader["central_ID"].ToString();
+                        central.Contraseña = reader["contrasenia"].ToString();
+                        central.Barrio = Barrio.Get(Convert.ToInt32(reader["barrio_ID"]));
                     }
                     else return null;
                 }
             }
-       
+
             return central;
         }
-       
 
+        public void Save()
+        {
+            // Guardamos
+            using (MySqlConnection connection = new MySqlConnection(DbAccess.Db.ConnectionString))
+            {
+                MySqlCommand cmd = new MySqlCommand();
+                cmd.Connection = connection;
+                cmd.CommandText = "INSERT INTO central (central_ID, contrasenia, barrio_ID) VALUES (@Id, @Contrasenia, @Barrio)";
+                cmd.CommandType = System.Data.CommandType.Text;
+
+                cmd.Parameters.AddWithValue("@Id", Central_ID);
+                cmd.Parameters.AddWithValue("@Contrasenia", Contraseña);
+                cmd.Parameters.AddWithValue("@Barrio", Barrio.Barrio_ID);
+
+                connection.Open();
+                cmd.ExecuteNonQuery();
+            }
+
+            // Asignamos la central al Diccionario
+            Centrales[Central_ID] = this;
+        }
+
+        public void Update()
+        {
+            // Updateamos en la BD.
+            using (MySqlConnection connection = new MySqlConnection(DbAccess.Db.ConnectionString))
+            {
+                MySqlCommand cmd = new MySqlCommand();
+                cmd.Connection = connection;
+                cmd.CommandText = "UPDATE central SET contrasenia = @Contrasenia, barrio_ID = @Barrio WHERE central_ID = @Id";
+                cmd.CommandType = System.Data.CommandType.Text;
+
+                cmd.Parameters.AddWithValue("@Id", Central_ID);
+                cmd.Parameters.AddWithValue("@Contrasenia", Contraseña);
+                cmd.Parameters.AddWithValue("@Barrio", Barrio.Barrio_ID);
+
+                connection.Open();
+
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        public void Delete()
+        {
+        
+            // De lo contrario, borramos del la BD y el Diccionario.
+            using (MySqlConnection connection = new MySqlConnection(DbAccess.Db.ConnectionString))
+            {
+                MySqlCommand cmd = new MySqlCommand();
+                cmd.Connection = connection;
+                cmd.CommandText = "DELETE FROM central WHERE central_ID = @Id";
+                cmd.CommandType = System.Data.CommandType.Text;
+
+                cmd.Parameters.AddWithValue("@Id", Central_ID);
+
+                connection.Open();
+
+                cmd.ExecuteNonQuery();
+            }
+
+            Centrales.Remove(Central_ID);
+        }
     }
 }

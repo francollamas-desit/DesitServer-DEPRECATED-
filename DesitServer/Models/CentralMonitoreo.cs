@@ -11,7 +11,7 @@ namespace DesitServer.Models
         // Diccionario de Centrales de Monitoreo
         private static Dictionary<string, CentralMonitoreo> Centrales = new Dictionary<string, CentralMonitoreo>();
 
-        public String Central_ID { get; set; }
+        public String CentralID { get; set; }
         public String Contraseña { get; set; }
         public Barrio Barrio { get; set; }
 
@@ -19,7 +19,7 @@ namespace DesitServer.Models
         {
             List<CentralMonitoreo> centrales = new List<CentralMonitoreo>();
 
-            using (MySqlConnection connection = new MySqlConnection(DbAccess.Db.ConnectionString))
+            using (MySqlConnection connection = new MySqlConnection(DbAccess.Instance.ConnectionString))
             {
                 MySqlCommand cmd = new MySqlCommand();
                 cmd.Connection = connection;
@@ -37,7 +37,7 @@ namespace DesitServer.Models
                         Centrales.TryGetValue(id, out CentralMonitoreo central);
 
                         // Actualiza los datos de la central (sea nueva o recien creada en memoria)
-                        central.Central_ID = id;
+                        central.CentralID = id;
                         central.Contraseña = reader["contrasenia"].ToString();
                         central.Barrio = Barrio.Get(Convert.ToInt32(reader["barrio_ID"]));
 
@@ -55,7 +55,7 @@ namespace DesitServer.Models
         public static CentralMonitoreo Get(String id)
         {
             CentralMonitoreo central;
-            using (MySqlConnection connection = new MySqlConnection(DbAccess.Db.ConnectionString))
+            using (MySqlConnection connection = new MySqlConnection(DbAccess.Instance.ConnectionString))
             {
                 MySqlCommand cmd = new MySqlCommand();
                 cmd.Connection = connection;
@@ -78,7 +78,7 @@ namespace DesitServer.Models
                         }
 
                         // Actualiza los datos de la central (sea nuevo o recien creado en memoria)
-                        central.Central_ID = reader["central_ID"].ToString();
+                        central.CentralID = reader["central_ID"].ToString();
                         central.Contraseña = reader["contrasenia"].ToString();
                         central.Barrio = Barrio.Get(Convert.ToInt32(reader["barrio_ID"]));
                     }
@@ -92,38 +92,38 @@ namespace DesitServer.Models
         public void Save()
         {
             // Guardamos
-            using (MySqlConnection connection = new MySqlConnection(DbAccess.Db.ConnectionString))
+            using (MySqlConnection connection = new MySqlConnection(DbAccess.Instance.ConnectionString))
             {
                 MySqlCommand cmd = new MySqlCommand();
                 cmd.Connection = connection;
                 cmd.CommandText = "INSERT INTO central (central_ID, contrasenia, barrio_ID) VALUES (@Id, @Contrasenia, @Barrio)";
                 cmd.CommandType = System.Data.CommandType.Text;
 
-                cmd.Parameters.AddWithValue("@Id", Central_ID);
+                cmd.Parameters.AddWithValue("@Id", CentralID);
                 cmd.Parameters.AddWithValue("@Contrasenia", Contraseña);
-                cmd.Parameters.AddWithValue("@Barrio", Barrio.Barrio_ID);
+                cmd.Parameters.AddWithValue("@Barrio", Barrio.BarrioID);
 
                 connection.Open();
                 cmd.ExecuteNonQuery();
             }
 
             // Asignamos la central al Diccionario
-            Centrales[Central_ID] = this;
+            Centrales[CentralID] = this;
         }
 
         public void Update()
         {
             // Updateamos en la BD.
-            using (MySqlConnection connection = new MySqlConnection(DbAccess.Db.ConnectionString))
+            using (MySqlConnection connection = new MySqlConnection(DbAccess.Instance.ConnectionString))
             {
                 MySqlCommand cmd = new MySqlCommand();
                 cmd.Connection = connection;
                 cmd.CommandText = "UPDATE central SET contrasenia = @Contrasenia, barrio_ID = @Barrio WHERE central_ID = @Id";
                 cmd.CommandType = System.Data.CommandType.Text;
 
-                cmd.Parameters.AddWithValue("@Id", Central_ID);
+                cmd.Parameters.AddWithValue("@Id", CentralID);
                 cmd.Parameters.AddWithValue("@Contrasenia", Contraseña);
-                cmd.Parameters.AddWithValue("@Barrio", Barrio.Barrio_ID);
+                cmd.Parameters.AddWithValue("@Barrio", Barrio.BarrioID);
 
                 connection.Open();
 
@@ -135,21 +135,21 @@ namespace DesitServer.Models
         {
         
             // De lo contrario, borramos del la BD y el Diccionario.
-            using (MySqlConnection connection = new MySqlConnection(DbAccess.Db.ConnectionString))
+            using (MySqlConnection connection = new MySqlConnection(DbAccess.Instance.ConnectionString))
             {
                 MySqlCommand cmd = new MySqlCommand();
                 cmd.Connection = connection;
                 cmd.CommandText = "DELETE FROM central WHERE central_ID = @Id";
                 cmd.CommandType = System.Data.CommandType.Text;
 
-                cmd.Parameters.AddWithValue("@Id", Central_ID);
+                cmd.Parameters.AddWithValue("@Id", CentralID);
 
                 connection.Open();
 
                 cmd.ExecuteNonQuery();
             }
 
-            Centrales.Remove(Central_ID);
+            Centrales.Remove(CentralID);
         }
     }
 }

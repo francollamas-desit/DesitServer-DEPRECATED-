@@ -10,7 +10,7 @@ namespace DesitServer.Models
 
         private static DbAccess instance;
 
-        public static DbAccess Db {
+        public static DbAccess Instance {
             get
             {
                 if (instance == null) instance = new DbAccess();

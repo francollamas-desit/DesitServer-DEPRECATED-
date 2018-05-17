@@ -9,14 +9,14 @@ namespace DesitServer.Models
         // Diccionario de Barrios
         private static Dictionary<int, Barrio> Barrios = new Dictionary<int, Barrio>();
 
-        public int? Barrio_ID { get; private set; }
+        public int? BarrioID { get; private set; }
         public String Nombre { get; set; }
 
         public static List<Barrio> GetAll()
         {
             List<Barrio> barrios = new List<Barrio>();
 
-            using (MySqlConnection connection = new MySqlConnection(DbAccess.Db.ConnectionString))
+            using (MySqlConnection connection = new MySqlConnection(DbAccess.Instance.ConnectionString))
             {
                 MySqlCommand cmd = new MySqlCommand();
                 cmd.Connection = connection;
@@ -34,7 +34,7 @@ namespace DesitServer.Models
                         Barrios.TryGetValue(id, out Barrio barrio);
 
                         // Actualiza los datos del barrio (sea nuevo o recien creado en memoria)
-                        barrio.Barrio_ID = id;
+                        barrio.BarrioID = id;
                         barrio.Nombre = reader["nombre"].ToString();
 
                         // Agrego el barrio a la lista de retorno
@@ -51,7 +51,7 @@ namespace DesitServer.Models
         public static Barrio Get(int id)
         {
             Barrio barrio;
-            using (MySqlConnection connection = new MySqlConnection(DbAccess.Db.ConnectionString))
+            using (MySqlConnection connection = new MySqlConnection(DbAccess.Instance.ConnectionString))
             {
                 MySqlCommand cmd = new MySqlCommand();
                 cmd.Connection = connection;
@@ -73,7 +73,7 @@ namespace DesitServer.Models
                         }
 
                         // Actualiza los datos del barrio (sea nuevo o recien creado en memoria)
-                        barrio.Barrio_ID = Convert.ToInt32(reader["barrio_ID"]);
+                        barrio.BarrioID = Convert.ToInt32(reader["barrio_ID"]);
                         barrio.Nombre = reader["nombre"].ToString();
                 }
                     else return null;
@@ -86,10 +86,10 @@ namespace DesitServer.Models
         public void Save()
         {
             // Si el barrio que queremos guardar ya existe en memoria, no sigue.
-            if (Barrio_ID.HasValue) return;
+            if (BarrioID.HasValue) return;
 
             // De lo contrario, guardamos.
-            using (MySqlConnection connection = new MySqlConnection(DbAccess.Db.ConnectionString))
+            using (MySqlConnection connection = new MySqlConnection(DbAccess.Instance.ConnectionString))
             {
                 MySqlCommand cmd = new MySqlCommand();
                 cmd.Connection = connection;
@@ -101,27 +101,27 @@ namespace DesitServer.Models
                 connection.Open();
 
                 cmd.ExecuteNonQuery();
-                Barrio_ID = (int)cmd.LastInsertedId;
+                BarrioID = (int)cmd.LastInsertedId;
             }
 
             // Asignamos el barrio al Diccionario
-            Barrios[Barrio_ID.GetValueOrDefault()] = this;
+            Barrios[BarrioID.GetValueOrDefault()] = this;
         }
 
         public void Update()
         {
             // Si no existe todavía, no se puede actualizar.
-            if (!Barrio_ID.HasValue) return;
+            if (!BarrioID.HasValue) return;
 
             // De lo contrario, updateamos en la BD.
-            using (MySqlConnection connection = new MySqlConnection(DbAccess.Db.ConnectionString))
+            using (MySqlConnection connection = new MySqlConnection(DbAccess.Instance.ConnectionString))
             {
                 MySqlCommand cmd = new MySqlCommand();
                 cmd.Connection = connection;
                 cmd.CommandText = "UPDATE barrio SET nombre = @Nombre WHERE barrio_ID = @Id";
                 cmd.CommandType = System.Data.CommandType.Text;
 
-                cmd.Parameters.AddWithValue("@Id", Barrio_ID.GetValueOrDefault());
+                cmd.Parameters.AddWithValue("@Id", BarrioID.GetValueOrDefault());
                 cmd.Parameters.AddWithValue("@Nombre", Nombre);
 
                 connection.Open();
@@ -133,24 +133,24 @@ namespace DesitServer.Models
         public void Delete()
         {
             // Si no existe todavía, no se puede borrar.
-            if (!Barrio_ID.HasValue) return;
+            if (!BarrioID.HasValue) return;
 
             // De lo contrario, borramos del la BD y el Diccionario.
-            using (MySqlConnection connection = new MySqlConnection(DbAccess.Db.ConnectionString))
+            using (MySqlConnection connection = new MySqlConnection(DbAccess.Instance.ConnectionString))
             {
                 MySqlCommand cmd = new MySqlCommand();
                 cmd.Connection = connection;
                 cmd.CommandText = "DELETE FROM barrio WHERE barrio_ID = @Id";
                 cmd.CommandType = System.Data.CommandType.Text;
 
-                cmd.Parameters.AddWithValue("@Id", Barrio_ID.GetValueOrDefault());
+                cmd.Parameters.AddWithValue("@Id", BarrioID.GetValueOrDefault());
 
                 connection.Open();
 
                 cmd.ExecuteNonQuery();
             }
 
-            Barrios.Remove(Barrio_ID.GetValueOrDefault());
+            Barrios.Remove(BarrioID.GetValueOrDefault());
         }
     }
     

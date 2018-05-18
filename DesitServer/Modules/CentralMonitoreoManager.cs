@@ -18,7 +18,7 @@ namespace DesitServer.Modules
         }
 
         // Centrales conectadas <socketId, central>
-        public Dictionary<string, CentralMonitoreo> centrales;
+        private Dictionary<string, CentralMonitoreo> centrales;
 
         private CentralMonitoreoManager()
         {

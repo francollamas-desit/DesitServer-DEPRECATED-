@@ -17,8 +17,8 @@ namespace DesitServer.Modules
             }
         }
 
-        // Centrales conectadas
-        private Dictionary<string, CentralMonitoreo> centrales;
+        // Centrales conectadas <socketId, central>
+        public Dictionary<string, CentralMonitoreo> centrales;
 
         private CentralMonitoreoManager()
         {
@@ -28,13 +28,27 @@ namespace DesitServer.Modules
         /**
          * Conecta una central y la agrega al diccionario.
          */
-        public bool ConectarCentral(string centralId, string contraseña)
+        public bool ConectarCentral(string socketId, string centralId, string contraseña)
         {
             CentralMonitoreo c = CentralMonitoreo.Get(centralId);
             if (c == null || !c.Contraseña.Equals(contraseña)) return false;
 
-            centrales[centralId] = c;
+            centrales[socketId] = c;
             return true;
         }
+
+        /**
+         * Desconecta una central
+         */
+        public bool DesconectarCentral(string socketId)
+        {
+            if (centrales.TryGetValue(socketId, out CentralMonitoreo c))
+            {
+                centrales.Remove(socketId);
+                return true;
+            }
+            return false;
+        }
+
     }
 }

@@ -6,6 +6,14 @@ using System.Threading.Tasks;
 
 namespace DesitServer.Models
 {
+
+    public enum ETipoLog
+    {
+        Conectado = 1,
+        Desconectado,
+        PerdidaConexion
+    }
+
     public class TipoLog : IModel
     {
         // Diccionario de Tipos de Log
@@ -52,8 +60,9 @@ namespace DesitServer.Models
             return tiposLog;
         }
 
-        public static TipoLog Get(int id)
+        public static TipoLog Get(ETipoLog idLog)
         {
+            int id = (int)idLog;
             TipoLog tipoLog;
             using (MySqlConnection connection = new MySqlConnection(DbAccess.Instance.ConnectionString))
             {

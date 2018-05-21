@@ -38,7 +38,7 @@ namespace DesitServer.Models
                     {
                         int id = Convert.ToInt32(reader["central_log_ID"]);
 
-                        Log log = new Log(CentralMonitoreo.Get(reader["central_ID"].ToString()), TipoLog.Get(Convert.ToInt32(reader["central_log_tipo_ID"])));
+                        Log log = new Log(CentralMonitoreo.Get(reader["central_ID"].ToString()), TipoLog.Get((ETipoLog)Convert.ToInt32(reader["central_log_tipo_ID"])));
                         log.LogId = id;
                         log.Fecha = Convert.ToDateTime(reader["fecha"]);
 
@@ -70,7 +70,7 @@ namespace DesitServer.Models
                     if (reader.Read())
                     {
 
-                        log = new Log(CentralMonitoreo.Get(reader["central_ID"].ToString()), TipoLog.Get(Convert.ToInt32(reader["central_log_tipo_ID"])));
+                        log = new Log(CentralMonitoreo.Get(reader["central_ID"].ToString()), TipoLog.Get((ETipoLog)Convert.ToInt32(reader["central_log_tipo_ID"])));
                         log.LogId = id;
                         log.Fecha = Convert.ToDateTime(reader["fecha"]);
                     }

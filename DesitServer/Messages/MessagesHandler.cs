@@ -16,7 +16,7 @@ namespace DesitServer.Messages
      */
     public class MessagesHandler : WebSocketHandler
     {
-        public const int WS_TIMEOUT = 60000;
+        public const int WS_TIMEOUT = 10000;
 
         // Referencia a los Mensajes
         public static MessagesHandler instance { get; private set; }
@@ -38,7 +38,7 @@ namespace DesitServer.Messages
             await base.OnConnected(socket);
             string socketId = WebSocketConnectionManager.GetId(socket);
 
-            Timer timer = new Timer(BorrarSocket, socket, WS_TIMEOUT, Timeout.Infinite); // TODO: poner el TimeOut en una constante
+            Timer timer = new Timer(BorrarSocket, socket, WS_TIMEOUT, Timeout.Infinite);
             conexionesSinAutenticar[socketId] = timer;
         }
 
@@ -48,8 +48,13 @@ namespace DesitServer.Messages
         private void BorrarSocket(Object o)
         {
             WebSocket ws = (WebSocket)o;
+
+            if (!(ws.State == WebSocketState.Open)) return;
+
             string socketId = WebSocketConnectionManager.GetId(ws);
-            
+
+            System.Diagnostics.Debug.WriteLine("aca estaría fallando...");
+
             conexionesSinAutenticar[socketId].Dispose();
             conexionesSinAutenticar.Remove(socketId);
 

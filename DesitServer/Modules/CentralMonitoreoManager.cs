@@ -33,6 +33,9 @@ namespace DesitServer.Modules
             CentralMonitoreo c = CentralMonitoreo.Get(centralId);
             if (c == null || !c.Contraseña.Equals(contraseña)) return false;
 
+            Log log = new Log(c, TipoLog.Get(ETipoLog.Conectado));
+            log.Save();
+
             centrales[socketId] = c;
             return true;
         }
@@ -44,6 +47,8 @@ namespace DesitServer.Modules
         {
             if (centrales.TryGetValue(socketId, out CentralMonitoreo c))
             {
+                Log log = new Log(c, TipoLog.Get(ETipoLog.Desconectado));
+                log.Save();
                 centrales.Remove(socketId);
                 return true;
             }

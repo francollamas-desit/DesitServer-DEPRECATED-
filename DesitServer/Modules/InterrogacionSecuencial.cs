@@ -16,8 +16,9 @@ namespace DesitServer.Modules
             Intervalo = 5000;
             TimeOut = 500;
             Reintentos = 3;
-            
         }
+
+
 
 
     }

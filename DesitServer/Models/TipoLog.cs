@@ -1,61 +1,65 @@
 ﻿using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace DesitServer.Models
 {
-    public class Barrio : IModel
+    public class TipoLog : IModel
     {
-        // Diccionario de Barrios
-        private static Dictionary<int, Barrio> Barrios = new Dictionary<int, Barrio>();
+        // Diccionario de Tipos de Log
+        private static Dictionary<int, TipoLog> TiposLog = new Dictionary<int, TipoLog>();
 
-        public int? BarrioID { get; private set; }
+        public int? TipoLogId { get; private set; }
         public String Nombre { get; set; }
+        public String Descripción { get; set; }
 
-        public static List<Barrio> GetAll()
+        public static List<TipoLog> GetAll()
         {
-            List<Barrio> barrios = new List<Barrio>();
+            List<TipoLog> tiposLog = new List<TipoLog>();
 
             using (MySqlConnection connection = new MySqlConnection(DbAccess.Instance.ConnectionString))
             {
                 MySqlCommand cmd = new MySqlCommand();
                 cmd.Connection = connection;
-                cmd.CommandText = "SELECT * FROM barrio";
+                cmd.CommandText = "SELECT * FROM central_log_tipo";
                 cmd.CommandType = System.Data.CommandType.Text;
                 connection.Open();
-                
+
                 using (MySqlDataReader reader = cmd.ExecuteReader())
                 {
                     while (reader.Read())
                     {
-                        int id = Convert.ToInt32(reader["barrio_ID"]);
+                        int id = Convert.ToInt32(reader["central_log_tipo_ID"]);
 
-                        // Si existe el barrio en memoria, lo cargo
-                        Barrios.TryGetValue(id, out Barrio barrio);
+                        // Si existe el tipo de log en memoria, lo cargo
+                        TiposLog.TryGetValue(id, out TipoLog tipoLog);
 
-                        // Actualiza los datos del barrio (sea nuevo o recien creado en memoria)
-                        barrio.BarrioID = id;
-                        barrio.Nombre = reader["nombre"].ToString();
+                        // Actualiza los datos del tipo de log (sea nuevo o recien creado en memoria)
+                        tipoLog.TipoLogId = id;
+                        tipoLog.Nombre = reader["nombre"].ToString();
+                        tipoLog.Descripción = reader["descripcion"].ToString();
 
-                        // Agrego el barrio a la lista de retorno
-                        barrios.Add(barrio);
+                        // Agrego el tipo de log a la lista de retorno
+                        tiposLog.Add(tipoLog);
 
                         // Cabe aclarar que para un getAll() no necesitamos guardarlo en el diccionario si no existía ya...
                     }
                 }
             }
 
-            return barrios;
+            return tiposLog;
         }
 
-        public static Barrio Get(int id)
+        public static TipoLog Get(int id)
         {
-            Barrio barrio;
+            TipoLog tipoLog;
             using (MySqlConnection connection = new MySqlConnection(DbAccess.Instance.ConnectionString))
             {
                 MySqlCommand cmd = new MySqlCommand();
                 cmd.Connection = connection;
-                cmd.CommandText = "SELECT * FROM barrio WHERE barrio_ID = @Id";
+                cmd.CommandText = "SELECT * FROM central_log_tipo WHERE central_log_tipo_ID = @Id";
                 cmd.CommandType = System.Data.CommandType.Text;
 
                 cmd.Parameters.AddWithValue("@Id", id);
@@ -67,62 +71,66 @@ namespace DesitServer.Models
                     if (reader.Read())
                     {
                         // Si ya está en el Diccionario, obtiene el objeto, de lo contrario, lo crea
-                        if (!Barrios.TryGetValue(id, out barrio)) {
-                            barrio = new Barrio();
-                            Barrios[id] = barrio;
+                        if (!TiposLog.TryGetValue(id, out tipoLog))
+                        {
+                            tipoLog = new TipoLog();
+                            TiposLog[id] = tipoLog;
                         }
 
-                        // Actualiza los datos del barrio (sea nuevo o recien creado en memoria)
-                        barrio.BarrioID = id;
-                        barrio.Nombre = reader["nombre"].ToString();
-                }
+                        // Actualiza los datos del tipo de log (sea nuevo o recien creado en memoria)
+                        tipoLog.TipoLogId = id;
+                        tipoLog.Nombre = reader["nombre"].ToString();
+                        tipoLog.Descripción = reader["descripcion"].ToString();
+                    }
                     else return null;
                 }
             }
 
-            return barrio;
+            return tipoLog;
         }
 
         public void Save()
         {
-            // Si el barrio que queremos guardar ya existe en memoria, no sigue.
-            if (BarrioID.HasValue) return;
+            // Si el tipo de log que queremos guardar ya existe en memoria, no sigue.
+            if (TipoLogId.HasValue) return;
 
             // De lo contrario, guardamos.
             using (MySqlConnection connection = new MySqlConnection(DbAccess.Instance.ConnectionString))
             {
                 MySqlCommand cmd = new MySqlCommand();
                 cmd.Connection = connection;
-                cmd.CommandText = "INSERT INTO barrio (nombre) VALUES (@Nombre)";
+                cmd.CommandText = "INSERT INTO central_log_tipo (nombre, descripcion) VALUES (@Nombre, @Descripcion)";
                 cmd.CommandType = System.Data.CommandType.Text;
 
                 cmd.Parameters.AddWithValue("@Nombre", Nombre);
+                cmd.Parameters.AddWithValue("@Descripcion", Descripción);
 
                 connection.Open();
 
                 cmd.ExecuteNonQuery();
-                BarrioID = (int)cmd.LastInsertedId;
+                TipoLogId = (int)cmd.LastInsertedId;
             }
 
-            // Asignamos el barrio al Diccionario
-            Barrios[BarrioID.GetValueOrDefault()] = this;
+            // Asignamos el tipo de log al Diccionario
+            TiposLog[TipoLogId.GetValueOrDefault()] = this;
         }
 
         public void Update()
         {
             // Si no existe todavía, no se puede actualizar.
-            if (!BarrioID.HasValue) return;
+            if (!TipoLogId.HasValue) return;
 
             // De lo contrario, updateamos en la BD.
             using (MySqlConnection connection = new MySqlConnection(DbAccess.Instance.ConnectionString))
             {
                 MySqlCommand cmd = new MySqlCommand();
                 cmd.Connection = connection;
-                cmd.CommandText = "UPDATE barrio SET nombre = @Nombre WHERE barrio_ID = @Id";
+                cmd.CommandText = "UPDATE central_log_tipo SET nombre = @Nombre, descripcion = @Descripcion WHERE central_log_tipo_ID = @Id";
                 cmd.CommandType = System.Data.CommandType.Text;
 
-                cmd.Parameters.AddWithValue("@Id", BarrioID.GetValueOrDefault());
+                cmd.Parameters.AddWithValue("@Id", TipoLogId.GetValueOrDefault());
                 cmd.Parameters.AddWithValue("@Nombre", Nombre);
+                cmd.Parameters.AddWithValue("@Descripcion", Descripción);
 
                 connection.Open();
 
@@ -133,27 +141,24 @@ namespace DesitServer.Models
         public void Delete()
         {
             // Si no existe todavía, no se puede borrar.
-            if (!BarrioID.HasValue) return;
+            if (!TipoLogId.HasValue) return;
 
             // De lo contrario, borramos del la BD y el Diccionario.
             using (MySqlConnection connection = new MySqlConnection(DbAccess.Instance.ConnectionString))
             {
                 MySqlCommand cmd = new MySqlCommand();
                 cmd.Connection = connection;
-                cmd.CommandText = "DELETE FROM barrio WHERE barrio_ID = @Id";
+                cmd.CommandText = "DELETE FROM central_log_tipo WHERE central_log_tipo_ID = @Id";
                 cmd.CommandType = System.Data.CommandType.Text;
 
-                cmd.Parameters.AddWithValue("@Id", BarrioID.GetValueOrDefault());
+                cmd.Parameters.AddWithValue("@Id", TipoLogId.GetValueOrDefault());
 
                 connection.Open();
 
                 cmd.ExecuteNonQuery();
             }
 
-            Barrios.Remove(BarrioID.GetValueOrDefault());
+            TiposLog.Remove(TipoLogId.GetValueOrDefault());
         }
     }
-    
-
-
 }

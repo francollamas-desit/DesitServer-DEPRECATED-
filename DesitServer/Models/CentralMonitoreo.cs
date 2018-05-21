@@ -78,7 +78,7 @@ namespace DesitServer.Models
                         }
 
                         // Actualiza los datos de la central (sea nuevo o recien creado en memoria)
-                        central.CentralID = reader["central_ID"].ToString();
+                        central.CentralID = id;
                         central.Contraseña = reader["contrasenia"].ToString();
                         central.Barrio = Barrio.Get(Convert.ToInt32(reader["barrio_ID"]));
                     }
@@ -91,6 +91,8 @@ namespace DesitServer.Models
 
         public void Save()
         {
+            if (Barrio == null) return;
+
             // Guardamos
             using (MySqlConnection connection = new MySqlConnection(DbAccess.Instance.ConnectionString))
             {

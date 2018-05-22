@@ -80,10 +80,26 @@ namespace DesitServer.Messages
             await base.OnDisconnected(socket);
         }
 
-        public bool Handshake(WebSocket socket, string centralID, string contraseña)
+        public int Handshake(WebSocket socket, string centralID, string contraseña)
         {
             string socketId = WebSocketConnectionManager.GetId(socket);
+            
+            // Chequeamos si hay una conexión anterior a la central, y la desconectamos...
+            string oldSocketId = CentralMonitoreoManager.Instance.ObtenerSocketId(centralID, contraseña);
 
+            if (oldSocketId != null)
+            {
+                try
+                {
+                    OnDisconnected(WebSocketConnectionManager.GetSocketById(oldSocketId));
+                }
+                catch (WebSocketException)
+                {
+
+                }
+            }
+            
+            // Conectamos la central...
             bool conectado = CentralMonitoreoManager.Instance.ConectarCentral(socketId, centralID, contraseña);
             if (!conectado)
             {
@@ -99,7 +115,7 @@ namespace DesitServer.Messages
 
             conexionesSinAutenticar[socketId].Dispose();
             conexionesSinAutenticar.Remove(socketId);
-            return conectado;
+            return CentralMonitoreoManager.Instance.centrales.Count;
            
         }
 

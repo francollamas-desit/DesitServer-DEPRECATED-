@@ -14,10 +14,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="wwwroot\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Reference Include="WebSocketManager">
       <HintPath>packages\WebSocketManager.dll</HintPath>
     </Reference>

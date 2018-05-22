@@ -5,9 +5,9 @@ using System.Net.WebSockets;
 using System.Threading.Tasks;
 using System.Threading;
 using DesitServer.Models;
+using DesitServer.Modules;
 using WebSocketManager;
 using WebSocketManager.Common;
-using DesitServer.Modules;
 
 namespace DesitServer.Messages
 {
@@ -45,29 +45,34 @@ namespace DesitServer.Messages
         /**
          * Elimina el Socket cuando pasado un tiempo no se autenticó.
          */
-        private void BorrarSocket(Object o)
+        private async void BorrarSocket(Object o)
         {
             WebSocket ws = (WebSocket)o;
 
             if (!(ws.State == WebSocketState.Open)) return;
 
             string socketId = WebSocketConnectionManager.GetId(ws);
-
-            System.Diagnostics.Debug.WriteLine("aca estaría fallando...");
-
+            
             conexionesSinAutenticar[socketId].Dispose();
             conexionesSinAutenticar.Remove(socketId);
 
-            OnDisconnected(ws);
+            try
+            {
+                await OnDisconnected(ws);
+            }
+            catch (WebSocketException)
+            {
+
+            }
         }
 
 
         public override async Task OnDisconnected(WebSocket socket)
         {
-            var socketId = WebSocketConnectionManager.GetId(socket);
+            string socketId = WebSocketConnectionManager.GetId(socket);
 
             // Intenta desconectar la central
-            if (!CentralMonitoreoManager.Instance.DesconectarCentral(socketId))
+            if (socketId != null && !CentralMonitoreoManager.Instance.DesconectarCentral(socketId))
             {
                 // TODO: desconectar ADMIN.
             }
@@ -80,7 +85,17 @@ namespace DesitServer.Messages
             string socketId = WebSocketConnectionManager.GetId(socket);
 
             bool conectado = CentralMonitoreoManager.Instance.ConectarCentral(socketId, centralID, contraseña);
-            if (!conectado) OnDisconnected(socket);
+            if (!conectado)
+            {
+                try
+                {
+                    OnDisconnected(socket);
+                }
+                catch (WebSocketException)
+                {
+
+                }
+            }
 
             conexionesSinAutenticar[socketId].Dispose();
             conexionesSinAutenticar.Remove(socketId);

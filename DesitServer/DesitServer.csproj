@@ -19,10 +19,10 @@
 
   <ItemGroup>
     <Reference Include="WebSocketManager">
-      <HintPath>..\..\DesitServer\DesitServer\packages\WebSocketManager.dll</HintPath>
+      <HintPath>packages\WebSocketManager.dll</HintPath>
     </Reference>
     <Reference Include="WebSocketManager.Common">
-      <HintPath>..\..\DesitServer\DesitServer\packages\WebSocketManager.Common.dll</HintPath>
+      <HintPath>packages\WebSocketManager.Common.dll</HintPath>
     </Reference>
   </ItemGroup>
 

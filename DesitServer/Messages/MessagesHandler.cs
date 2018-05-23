@@ -75,11 +75,15 @@ namespace DesitServer.Messages
         public override async Task OnDisconnected(WebSocket socket)
         {
             string socketId = WebSocketConnectionManager.GetId(socket);
-
-            // Intenta desconectar la central
-            if (socketId != null && !CentralMonitoreoManager.Instance.DesconectarCentral(socketId))
+            
+            // Intenta desconectar admin o central
+            if (socketId != null)
             {
-                // TODO: desconectar ADMIN.
+                // Intentamos remover de ambos grupos.. en alguno tiene que existir
+                WebSocketConnectionManager.RemoveFromGroup(socketId, ETipoConexion.Central.ToString());
+                WebSocketConnectionManager.RemoveFromGroup(socketId, ETipoConexion.Admin.ToString());
+
+                if (!AdminManager.Instance.DesconectarAdmin(socketId)) CentralMonitoreoManager.Instance.DesconectarCentral(socketId);
             }
 
             await base.OnDisconnected(socket);
@@ -97,6 +101,7 @@ namespace DesitServer.Messages
             if (tipoConexion == ETipoConexion.Central)
             {
                 oldSocketId = CentralMonitoreoManager.Instance.ObtenerSocketId(identificador, contraseña);
+
             }
             else if (tipoConexion == ETipoConexion.Admin)
             {
@@ -132,11 +137,15 @@ namespace DesitServer.Messages
 
                 }
             }
-
+            else
+            {
+                WebSocketConnectionManager.AddToGroup(socketId, tipoConexion.ToString());
+            }
+            
             conexionesSinAutenticar[socketId].Dispose();
             conexionesSinAutenticar.Remove(socketId);
+
             return conectado;
-           
         }
 
     }

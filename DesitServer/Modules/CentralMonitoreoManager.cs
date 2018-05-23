@@ -19,7 +19,7 @@ namespace DesitServer.Modules
         }
 
         // Centrales conectadas <socketId, central>
-        public Dictionary<string, CentralMonitoreo> centrales;
+        private Dictionary<string, CentralMonitoreo> centrales;
 
         private CentralMonitoreoManager()
         {
@@ -48,7 +48,7 @@ namespace DesitServer.Modules
             CentralMonitoreo c = CentralMonitoreo.Get(centralId);
             if (c == null || !c.Contraseña.Equals(contraseña)) return false;
             
-            Log log = new Log(c, TipoLog.Get(ETipoLog.Conectado));
+            CentralLog log = new CentralLog(c, CentralLogTipo.Get(ECentralLogTipo.Conectado));
             log.Save();
 
             centrales[socketId] = c;
@@ -62,7 +62,7 @@ namespace DesitServer.Modules
         {
             if (centrales.TryGetValue(socketId, out CentralMonitoreo c))
             {
-                Log log = new Log(c, TipoLog.Get(ETipoLog.Desconectado));
+                CentralLog log = new CentralLog(c, CentralLogTipo.Get(ECentralLogTipo.Desconectado));
                 log.Save();
                 centrales.Remove(socketId);
                 return true;

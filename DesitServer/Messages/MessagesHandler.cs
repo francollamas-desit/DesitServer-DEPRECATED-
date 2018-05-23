@@ -11,12 +11,18 @@ using WebSocketManager.Common;
 
 namespace DesitServer.Messages
 {
+    public enum ETipoConexion
+    {
+        Admin = 69,
+        Central = 0
+    }
+
     /**
      * Mensajes del servidor al cliente
      */
     public class MessagesHandler : WebSocketHandler
     {
-        public const int WS_TIMEOUT = 10000;
+        public const int WS_TIMEOUT = 5000; // TODO: poner en 60000 (1 minuto)
 
         // Referencia a los Mensajes
         public static MessagesHandler instance { get; private set; }
@@ -66,7 +72,6 @@ namespace DesitServer.Messages
             }
         }
 
-
         public override async Task OnDisconnected(WebSocket socket)
         {
             string socketId = WebSocketConnectionManager.GetId(socket);
@@ -80,12 +85,23 @@ namespace DesitServer.Messages
             await base.OnDisconnected(socket);
         }
 
-        public int Handshake(WebSocket socket, string centralID, string contraseña)
+
+        public bool Handshake(WebSocket socket, int tipoConexionNum, string identificador, string contraseña)
         {
+            ETipoConexion tipoConexion = (ETipoConexion)tipoConexionNum;
+
             string socketId = WebSocketConnectionManager.GetId(socket);
-            
-            // Chequeamos si hay una conexión anterior a la central, y la desconectamos...
-            string oldSocketId = CentralMonitoreoManager.Instance.ObtenerSocketId(centralID, contraseña);
+
+            // Chequeamos si hay una conexión anterior a la central o al administrador, y la desconectamos...
+            string oldSocketId = null;
+            if (tipoConexion == ETipoConexion.Central)
+            {
+                oldSocketId = CentralMonitoreoManager.Instance.ObtenerSocketId(identificador, contraseña);
+            }
+            else if (tipoConexion == ETipoConexion.Admin)
+            {
+                oldSocketId = AdminManager.Instance.ObtenerSocketId(identificador, contraseña);
+            }
 
             if (oldSocketId != null)
             {
@@ -99,8 +115,12 @@ namespace DesitServer.Messages
                 }
             }
             
-            // Conectamos la central...
-            bool conectado = CentralMonitoreoManager.Instance.ConectarCentral(socketId, centralID, contraseña);
+            // Conectamos la central o admin
+            bool conectado = false;
+            if (tipoConexion == ETipoConexion.Central) conectado = CentralMonitoreoManager.Instance.ConectarCentral(socketId, identificador, contraseña);
+            else if (tipoConexion == ETipoConexion.Admin) conectado = AdminManager.Instance.ConectarAdmin(socketId, identificador, contraseña);
+
+            // Si no se realizó el handshake
             if (!conectado)
             {
                 try
@@ -115,7 +135,7 @@ namespace DesitServer.Messages
 
             conexionesSinAutenticar[socketId].Dispose();
             conexionesSinAutenticar.Remove(socketId);
-            return CentralMonitoreoManager.Instance.centrales.Count;
+            return conectado;
            
         }
 

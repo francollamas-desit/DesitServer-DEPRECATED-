@@ -41,7 +41,7 @@ namespace DesitServer.Models
                         central.Contraseña = reader["contrasenia"].ToString();
                         central.Barrio = Barrio.Get(Convert.ToInt32(reader["barrio_ID"]));
 
-                        // Agrego el barrio a la lista de retorno
+                        // Agrego la central a la lista de retorno
                         centrales.Add(central);
 
                         // Cabe aclarar que para un getAll() no necesitamos guardarlo en el diccionario si no existía ya...

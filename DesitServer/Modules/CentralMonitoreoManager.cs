@@ -26,6 +26,17 @@ namespace DesitServer.Modules
             centrales = new Dictionary<string, CentralMonitoreo>();
         }
 
+        public CentralMonitoreo ObtenerCentral(string socketId)
+        {
+            if (centrales.TryGetValue(socketId, out CentralMonitoreo c)) return c;
+            return null;
+        }
+
+        public bool ExisteCentral(string socketId)
+        {
+            return centrales.Keys.Contains(socketId);
+        }
+
         /**
          * Devuelve el socketId de una central conectada.
          */

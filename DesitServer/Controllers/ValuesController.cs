@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using DesitServer.Messages;
+using DesitServer.Modules;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DesitServer.Controllers
@@ -15,7 +16,7 @@ namespace DesitServer.Controllers
         public async Task<IEnumerable<string>> Get()
         {
             //int data = await MessagesHandler.instance.ObtenerData(null);
-            return new string[] { "num " + 44, "value2" };
+            return new string[] { "num ", "value2" };
         }
 
         // GET api/values/5

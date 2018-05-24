@@ -25,7 +25,7 @@ namespace DesitServer.Messages
         public const int WS_TIMEOUT = 5000; // TODO: poner en 60000 (1 minuto)
 
         // Referencia a los Mensajes
-        public static MessagesHandler instance { get; private set; }
+        public static MessagesHandler Instance { get; private set; }
 
         // Conexiónes entrantes que todavía no se logearon
         private Dictionary<string, Timer> conexionesSinAutenticar;
@@ -33,9 +33,17 @@ namespace DesitServer.Messages
         // Constructor
         public MessagesHandler(WebSocketConnectionManager webSocketConnectionManager) : base(webSocketConnectionManager, new ControllerMethodInvocationStrategy())
         {
-            instance = this;
+            Instance = this;
             conexionesSinAutenticar = new Dictionary<string, Timer>();
             ((ControllerMethodInvocationStrategy)MethodInvocationStrategy).Controller = this;
+        }
+
+        /**
+         * Obtiene el Id de todas las centrales conectadas
+         */
+        public List<string> ObtenerSocketIdCentrales()
+        {
+            return WebSocketConnectionManager.GetAllFromGroup(ETipoConexion.Central.ToString());
         }
 
         // Cuando un cliente se conectó
@@ -51,9 +59,9 @@ namespace DesitServer.Messages
         /**
          * Elimina el Socket cuando pasado un tiempo no se autenticó.
          */
-        private async void BorrarSocket(Object o)
+        private async void BorrarSocket(object state)
         {
-            WebSocket ws = (WebSocket)o;
+            WebSocket ws = (WebSocket)state;
 
             if (!(ws.State == WebSocketState.Open)) return;
 
@@ -72,6 +80,20 @@ namespace DesitServer.Messages
             }
         }
 
+        /**
+         * Desconecta por ID de Socket
+         */
+        public async Task OnDisconnected(string socketId)
+        {
+            WebSocket socket = WebSocketConnectionManager.GetSocketById(socketId);
+            if (socket == null) return;
+
+            await OnDisconnected(socket);
+        }
+
+        /**
+         * Desconecta por Socket
+         */
         public override async Task OnDisconnected(WebSocket socket)
         {
             string socketId = WebSocketConnectionManager.GetId(socket);
@@ -86,7 +108,14 @@ namespace DesitServer.Messages
                 if (!AdminManager.Instance.DesconectarAdmin(socketId)) CentralMonitoreoManager.Instance.DesconectarCentral(socketId);
             }
 
-            await base.OnDisconnected(socket);
+            try
+            {
+                await base.OnDisconnected(socket);
+            }
+            catch (WebSocketException)
+            {
+
+            }
         }
 
 
@@ -96,7 +125,7 @@ namespace DesitServer.Messages
 
             string socketId = WebSocketConnectionManager.GetId(socket);
 
-            // Chequeamos si hay una conexión anterior a la central o al administrador, y la desconectamos...
+            // Chequeamos si hay una conexión anterior a la central o al administrador.
             string oldSocketId = null;
             if (tipoConexion == ETipoConexion.Central)
             {
@@ -146,6 +175,11 @@ namespace DesitServer.Messages
             conexionesSinAutenticar.Remove(socketId);
 
             return conectado;
+        }
+
+        public async Task IntSecuencial(WebSocket socket)
+        {
+            InterrogacionSecuencial.Instance.CentralResponde(WebSocketConnectionManager.GetId(socket));
         }
 
     }

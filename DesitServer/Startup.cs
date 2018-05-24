@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using DesitServer.Messages;
 using DesitServer.Models;
+using DesitServer.Modules;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -46,6 +47,8 @@ namespace DesitServer
             app.UseWebSockets();
             app.MapWebSocketManager("/messages", app.ApplicationServices.GetService<MessagesHandler>());
 
+            // Inicia la interrogación secuencial
+            InterrogacionSecuencial.Instance.IniciarProceso();
 
             // TODO: por ahora armé un singleton por mi cuenta, pero debería ver como usarlo como un servicio
             DbAccess.Instance.ConnectionString = Configuration.GetConnectionString("DefaultConnection");

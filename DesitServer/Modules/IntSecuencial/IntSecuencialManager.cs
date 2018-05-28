@@ -34,11 +34,14 @@ namespace DesitServer.Modules
             centralesSinRespuesta = new Dictionary<string, Timer>();
         }
 
-        public void IniciarProceso()
+        public void IniciarProceso(object state)
         {
+            // TODO: mandar nuevos datos a la int secuencial.
+
             // Inicia el proceso...
             mainTimer = new Timer(InterrogarCentrales, null, 5000, config.Intervalo);
         }
+        
 
         private async void InterrogarCentrales(object state)
         {
@@ -105,16 +108,19 @@ namespace DesitServer.Modules
 
         public void CambiarDatos(int? intervalo, int? timeout, int? reintentos)
         {
+            long oldIntervalo = config.Intervalo;
+            
             if (intervalo.HasValue) config.Intervalo = intervalo.GetValueOrDefault();
             if (timeout.HasValue) config.TimeOut = timeout.GetValueOrDefault();
             if (reintentos.HasValue) config.Reintentos = reintentos.GetValueOrDefault();
             config.Update();
-
             mainTimer.Dispose();
 
-            mainTimer.Change(5000, config.Intervalo);
+            // Reinicio el proceso en un momento en donde sepa que ya no se está mandando más nada.
+            new Timer(IniciarProceso, null, (int)(oldIntervalo * 1.5), Timeout.Infinite);
+            
 
-            // TODO: mandar a todas las centrales el nuevo dato (para que hagan su propio chequeo)
+            // TODO: decir a todas las centrales que paren el chequeo
         }
     }
 }

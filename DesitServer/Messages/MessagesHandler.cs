@@ -184,7 +184,8 @@ namespace DesitServer.Messages
 
         public async Task ChangeIntSecuencial(WebSocket socket, int? intervalo, int? timeout, int? reintentos)
         {
-            IntSecuencialManager.Instance.CentralResponde(WebSocketConnectionManager.GetId(socket));
+            // TODO: chequear que yo sea admin (para este y para todos los métodos parecidos).. hacer lo mismo con centrales
+            IntSecuencialManager.Instance.CambiarDatos(intervalo, timeout, reintentos);
         }
 
     }

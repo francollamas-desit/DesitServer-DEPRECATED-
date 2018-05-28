@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MySql.Data.MySqlClient;
+using DesitServer.Models.BarrioNS;
 
-namespace DesitServer.Models
+namespace DesitServer.Models.Central
 {
     public class CentralMonitoreo : IModel
     {

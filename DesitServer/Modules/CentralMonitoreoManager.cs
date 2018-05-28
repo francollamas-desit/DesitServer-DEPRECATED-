@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using DesitServer.Models;
+using DesitServer.Models.Central.Log;
+using DesitServer.Models.Central;
 
 namespace DesitServer.Modules
 {

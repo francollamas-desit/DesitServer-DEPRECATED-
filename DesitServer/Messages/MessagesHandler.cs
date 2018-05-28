@@ -179,7 +179,12 @@ namespace DesitServer.Messages
 
         public async Task IntSecuencial(WebSocket socket)
         {
-            InterrogacionSecuencial.Instance.CentralResponde(WebSocketConnectionManager.GetId(socket));
+            IntSecuencialManager.Instance.CentralResponde(WebSocketConnectionManager.GetId(socket));
+        }
+
+        public async Task ChangeIntSecuencial(WebSocket socket, int? intervalo, int? timeout, int? reintentos)
+        {
+            IntSecuencialManager.Instance.CentralResponde(WebSocketConnectionManager.GetId(socket));
         }
 
     }

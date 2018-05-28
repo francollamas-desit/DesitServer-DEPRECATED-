@@ -1,5 +1,4 @@
-﻿using DesitServer.Models.Admin;
-using DesitServer.Models.Administrador;
+﻿using DesitServer.Models.Administrador;
 using System;
 using System.Collections.Generic;
 using System.Linq;

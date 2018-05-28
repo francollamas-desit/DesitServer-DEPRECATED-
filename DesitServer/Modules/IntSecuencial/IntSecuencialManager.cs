@@ -1,6 +1,8 @@
 ﻿using DesitServer.Messages;
 using DesitServer.Models;
-using DesitServer.Modules.IntSecuencial;
+using DesitServer.Models.InterrogacionSecuencial;
+using DesitServer.Modules.InterrogacionSecuencial;
+using DesitServer.Models.Central.Log;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,28 +11,25 @@ using System.Threading.Tasks;
 
 namespace DesitServer.Modules
 {
-    public class InterrogacionSecuencial
+    public class IntSecuencialManager
     {
-        private static InterrogacionSecuencial instance;
+        private static IntSecuencialManager instance;
 
-        public static InterrogacionSecuencial Instance {
+        public static IntSecuencialManager Instance {
             get {
-                if (instance == null) instance = new InterrogacionSecuencial();
+                if (instance == null) instance = new IntSecuencialManager();
                 return instance;
             }
         }
 
-        private long Intervalo { get; set; }
-        private long TimeOut { get; set; }
-        private int Reintentos { get; set; }
+        public IntSecuencial config { get; private set; }
 
         private Dictionary<string, Timer> centralesSinRespuesta;
+        private Timer mainTimer;
 
-        public InterrogacionSecuencial()
+        public IntSecuencialManager()
         {
-            Intervalo = 20000;
-            TimeOut = 2000;
-            Reintentos = 3;
+            config = IntSecuencial.Get();
 
             centralesSinRespuesta = new Dictionary<string, Timer>();
         }
@@ -38,7 +37,7 @@ namespace DesitServer.Modules
         public void IniciarProceso()
         {
             // Inicia el proceso...
-            Timer timer = new Timer(InterrogarCentrales, null, 5000, Intervalo);
+            mainTimer = new Timer(InterrogarCentrales, null, 5000, config.Intervalo);
         }
 
         private async void InterrogarCentrales(object state)
@@ -54,7 +53,7 @@ namespace DesitServer.Modules
                 {
 
                     CentralReintento reintento = new CentralReintento(socketId);
-                    Timer timer = new Timer(ReintentarInterrogacion, reintento, TimeOut, TimeOut);
+                    Timer timer = new Timer(ReintentarInterrogacion, reintento, config.TimeOut, config.TimeOut);
                     centralesSinRespuesta[socketId] = timer;
                     await MessagesHandler.Instance.InvokeClientMethodOnlyAsync(socketId, "intSecuencial", 0);
                 }
@@ -79,7 +78,7 @@ namespace DesitServer.Modules
             if (CentralMonitoreoManager.Instance.ExisteCentral(reintento.SocketID))
             {
                 // Si se puede reintentar
-                if (reintento.Reintentos < Reintentos) {
+                if (reintento.Reintentos < config.Reintentos) {
                     await MessagesHandler.Instance.InvokeClientMethodOnlyAsync(reintento.SocketID, "intSecuencial", reintento.Reintentos);
                 }
 
@@ -101,7 +100,21 @@ namespace DesitServer.Modules
                     await MessagesHandler.Instance.OnDisconnected(reintento.SocketID);
                 }
             }
+            
         }
 
+        public void CambiarDatos(int? intervalo, int? timeout, int? reintentos)
+        {
+            if (intervalo.HasValue) config.Intervalo = intervalo.GetValueOrDefault();
+            if (timeout.HasValue) config.TimeOut = timeout.GetValueOrDefault();
+            if (reintentos.HasValue) config.Reintentos = reintentos.GetValueOrDefault();
+            config.Update();
+
+            mainTimer.Dispose();
+
+            mainTimer.Change(5000, config.Intervalo);
+
+            // TODO: mandar a todas las centrales el nuevo dato (para que hagan su propio chequeo)
+        }
     }
 }

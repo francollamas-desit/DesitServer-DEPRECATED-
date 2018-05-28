@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace DesitServer.Models
+namespace DesitServer.Models.BarrioNS
 {
     public class Barrio : IModel
     {

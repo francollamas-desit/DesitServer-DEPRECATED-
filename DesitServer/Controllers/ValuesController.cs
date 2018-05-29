@@ -15,7 +15,6 @@ namespace DesitServer.Controllers
         [HttpGet]
         public async Task<IEnumerable<string>> Get()
         {
-            await 
             //int data = await MessagesHandler.instance.ObtenerData(null);
             return new string[] { "num ", "value2" };
         }

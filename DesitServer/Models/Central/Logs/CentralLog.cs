@@ -20,6 +20,37 @@ namespace DesitServer.Models.Central.Log
             TipoLog = tipoLog;
         }
 
+
+        public static CentralLog GetLast(CentralMonitoreo c)
+        {
+            CentralLog log = null;
+            using (MySqlConnection connection = new MySqlConnection(DbAccess.Instance.ConnectionString))
+            {
+                MySqlCommand cmd = new MySqlCommand();
+                cmd.Connection = connection;
+                cmd.CommandText = "SELECT * FROM central_log WHERE central_ID == @IdCentral ORDER BY fecha DESC LIMIT 1";
+                cmd.CommandType = System.Data.CommandType.Text;
+
+                cmd.Parameters.AddWithValue("@IdCentral", c.CentralID);
+
+                connection.Open();
+
+                using (MySqlDataReader reader = cmd.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+
+                        log = new CentralLog(CentralMonitoreo.Get(reader["central_ID"].ToString()), CentralLogTipo.Get((ECentralLogTipo)Convert.ToInt32(reader["central_log_tipo_ID"])));
+                        log.LogId = Convert.ToInt32(reader["central_log_ID"]);
+                        log.Fecha = Convert.ToDateTime(reader["fecha"]);
+                    }
+                    else return null;
+                }
+            }
+
+            return log;
+        }
+
         public static List<CentralLog> GetAll()
         {
             List<CentralLog> logs = new List<CentralLog>();

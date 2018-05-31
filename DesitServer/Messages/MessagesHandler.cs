@@ -8,6 +8,7 @@ using DesitServer.Models;
 using DesitServer.Modules;
 using WebSocketManager;
 using WebSocketManager.Common;
+using DesitServer.Models.Central.Log;
 
 namespace DesitServer.Messages
 {
@@ -105,7 +106,14 @@ namespace DesitServer.Messages
                 WebSocketConnectionManager.RemoveFromGroup(socketId, ETipoConexion.Central.ToString());
                 WebSocketConnectionManager.RemoveFromGroup(socketId, ETipoConexion.Admin.ToString());
 
-                if (!AdminManager.Instance.DesconectarAdmin(socketId)) CentralMonitoreoManager.Instance.DesconectarCentral(socketId);
+                if (!AdminManager.Instance.DesconectarAdmin(socketId))
+                {
+                    string centralId = CentralMonitoreoManager.Instance.ObtenerCentral(socketId).CentralID;
+                    CentralMonitoreoManager.Instance.DesconectarCentral(socketId);
+
+                    // Mando a todos los admins la info nueva, para que se actualice al instante.
+                    await InvokeClientMethodToGroupAsync(ETipoConexion.Admin.ToString(), "ChangeCentralState", 0, centralId, (int)ECentralLogTipo.Desconectado);
+                }
             }
 
             try
@@ -151,7 +159,14 @@ namespace DesitServer.Messages
             
             // Conectamos la central o admin
             bool conectado = false;
-            if (tipoConexion == ETipoConexion.Central) conectado = CentralMonitoreoManager.Instance.ConectarCentral(socketId, identificador, contraseña);
+            if (tipoConexion == ETipoConexion.Central)
+            {
+                conectado = CentralMonitoreoManager.Instance.ConectarCentral(socketId, identificador, contraseña);
+
+                // Mando a todos los admins la info nueva, para que se actualice al instante.
+                string centralId = CentralMonitoreoManager.Instance.ObtenerCentral(socketId).CentralID;
+                InvokeClientMethodToGroupAsync(ETipoConexion.Admin.ToString(), "ChangeCentralState", 0, centralId, (int)ECentralLogTipo.Conectado);
+            }
             else if (tipoConexion == ETipoConexion.Admin) conectado = AdminManager.Instance.ConectarAdmin(socketId, identificador, contraseña);
 
             // Si no se realizó el handshake

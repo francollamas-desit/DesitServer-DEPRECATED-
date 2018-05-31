@@ -20,7 +20,9 @@ namespace DesitServer.Models.Central.Log
             TipoLog = tipoLog;
         }
 
-
+        /*
+         * Obtiene el log más reciente
+         */
         public static CentralLog GetLast(CentralMonitoreo c)
         {
             CentralLog log = null;
@@ -28,7 +30,7 @@ namespace DesitServer.Models.Central.Log
             {
                 MySqlCommand cmd = new MySqlCommand();
                 cmd.Connection = connection;
-                cmd.CommandText = "SELECT * FROM central_log WHERE central_ID == @IdCentral ORDER BY fecha DESC LIMIT 1";
+                cmd.CommandText = "SELECT * FROM central_log WHERE central_ID = @IdCentral ORDER BY fecha DESC LIMIT 1";
                 cmd.CommandType = System.Data.CommandType.Text;
 
                 cmd.Parameters.AddWithValue("@IdCentral", c.CentralID);

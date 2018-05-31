@@ -65,6 +65,7 @@ namespace DesitServer.Modules
             log.Save();
 
             centrales[socketId] = c;
+            
             return true;
         }
 

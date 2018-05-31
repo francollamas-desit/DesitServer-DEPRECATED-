@@ -15,12 +15,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="WebSocketManager">
-      <HintPath>packages\WebSocketManager.dll</HintPath>
-    </Reference>
-    <Reference Include="WebSocketManager.Common">
-      <HintPath>packages\WebSocketManager.Common.dll</HintPath>
-    </Reference>
+    <ProjectReference Include="..\WebSocketManager.Common\WebSocketManager.Common.csproj" />
+    <ProjectReference Include="..\WebSocketManager\WebSocketManager.csproj" />
   </ItemGroup>
 
 </Project>

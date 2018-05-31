@@ -5,6 +5,10 @@ VisualStudioVersion = 15.0.27130.2020
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DesitServer", "DesitServer\DesitServer.csproj", "{3DB35C42-9641-42D6-9C2A-2DE6854D3800}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebSocketManager.Common", "WebSocketManager.Common\WebSocketManager.Common.csproj", "{839A1EBB-92FE-43A5-BA76-019D555A4235}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebSocketManager", "WebSocketManager\WebSocketManager.csproj", "{88FBDC63-C521-43CD-A986-0E0D819D20E4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +19,14 @@ Global
 		{3DB35C42-9641-42D6-9C2A-2DE6854D3800}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3DB35C42-9641-42D6-9C2A-2DE6854D3800}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3DB35C42-9641-42D6-9C2A-2DE6854D3800}.Release|Any CPU.Build.0 = Release|Any CPU
+		{839A1EBB-92FE-43A5-BA76-019D555A4235}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{839A1EBB-92FE-43A5-BA76-019D555A4235}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{839A1EBB-92FE-43A5-BA76-019D555A4235}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{839A1EBB-92FE-43A5-BA76-019D555A4235}.Release|Any CPU.Build.0 = Release|Any CPU
+		{88FBDC63-C521-43CD-A986-0E0D819D20E4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{88FBDC63-C521-43CD-A986-0E0D819D20E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{88FBDC63-C521-43CD-A986-0E0D819D20E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{88FBDC63-C521-43CD-A986-0E0D819D20E4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

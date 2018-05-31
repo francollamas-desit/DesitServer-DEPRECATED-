@@ -9,6 +9,7 @@ using DesitServer.Modules;
 using WebSocketManager;
 using WebSocketManager.Common;
 using DesitServer.Models.Central.Log;
+using DesitServer.Models.Central;
 
 namespace DesitServer.Messages
 {
@@ -23,7 +24,7 @@ namespace DesitServer.Messages
      */
     public class MessagesHandler : WebSocketHandler
     {
-        public const int WS_TIMEOUT = 5000; // TODO: poner en 60000 (1 minuto)
+        public const int WS_TIMEOUT = 20000; // TODO: poner en 60000 (1 minuto)
 
         // Referencia a los Mensajes
         public static MessagesHandler Instance { get; private set; }
@@ -74,6 +75,7 @@ namespace DesitServer.Messages
             try
             {
                 await OnDisconnected(ws);
+                
             }
             catch (WebSocketException)
             {
@@ -98,21 +100,26 @@ namespace DesitServer.Messages
         public override async Task OnDisconnected(WebSocket socket)
         {
             string socketId = WebSocketConnectionManager.GetId(socket);
-            
+
             // Intenta desconectar admin o central
             if (socketId != null)
             {
+
                 // Intentamos remover de ambos grupos.. en alguno tiene que existir
                 WebSocketConnectionManager.RemoveFromGroup(socketId, ETipoConexion.Central.ToString());
                 WebSocketConnectionManager.RemoveFromGroup(socketId, ETipoConexion.Admin.ToString());
 
                 if (!AdminManager.Instance.DesconectarAdmin(socketId))
                 {
-                    string centralId = CentralMonitoreoManager.Instance.ObtenerCentral(socketId).CentralID;
-                    CentralMonitoreoManager.Instance.DesconectarCentral(socketId);
+                    CentralMonitoreo c = CentralMonitoreoManager.Instance.ObtenerCentral(socketId);
+                    if (c != null)
+                    {
+                        string centralId = c.CentralID;
+                        CentralMonitoreoManager.Instance.DesconectarCentral(socketId);
 
-                    // Mando a todos los admins la info nueva, para que se actualice al instante.
-                    await InvokeClientMethodToGroupAsync(ETipoConexion.Admin.ToString(), "ChangeCentralState", 0, centralId, (int)ECentralLogTipo.Desconectado);
+                        // Mando a todos los admins la info nueva, para que se actualice al instante.
+                        await InvokeClientMethodToGroupAsync(ETipoConexion.Admin.ToString(), "ChangeCentralState", 0, centralId, (int)ECentralLogTipo.Desconectado);
+                    }
                 }
             }
 
@@ -163,9 +170,13 @@ namespace DesitServer.Messages
             {
                 conectado = CentralMonitoreoManager.Instance.ConectarCentral(socketId, identificador, contraseña);
 
-                // Mando a todos los admins la info nueva, para que se actualice al instante.
-                string centralId = CentralMonitoreoManager.Instance.ObtenerCentral(socketId).CentralID;
-                InvokeClientMethodToGroupAsync(ETipoConexion.Admin.ToString(), "ChangeCentralState", 0, centralId, (int)ECentralLogTipo.Conectado);
+                if (conectado)
+                {
+                    // Mando a todos los admins la info nueva, para que se actualice al instante.
+                    string centralId = CentralMonitoreoManager.Instance.ObtenerCentral(socketId).CentralID;
+                    InvokeClientMethodToGroupAsync(ETipoConexion.Admin.ToString(), "ChangeCentralState", 0, centralId, (int)ECentralLogTipo.Conectado);
+                }
+                
             }
             else if (tipoConexion == ETipoConexion.Admin) conectado = AdminManager.Instance.ConectarAdmin(socketId, identificador, contraseña);
 

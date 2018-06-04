@@ -23,7 +23,7 @@ namespace DesitServer.Models.Central.Log
         /*
          * Obtiene el log más reciente
          */
-        public static CentralLog GetLast(CentralMonitoreo c)
+        public static CentralLog GetLast(string centralId)
         {
             CentralLog log = null;
             using (MySqlConnection connection = new MySqlConnection(DbAccess.Instance.ConnectionString))
@@ -33,7 +33,7 @@ namespace DesitServer.Models.Central.Log
                 cmd.CommandText = "SELECT * FROM central_log WHERE central_ID = @IdCentral ORDER BY fecha DESC LIMIT 1";
                 cmd.CommandType = System.Data.CommandType.Text;
 
-                cmd.Parameters.AddWithValue("@IdCentral", c.CentralID);
+                cmd.Parameters.AddWithValue("@IdCentral", centralId);
 
                 connection.Open();
 
@@ -53,7 +53,7 @@ namespace DesitServer.Models.Central.Log
             return log;
         }
 
-        public static List<CentralLog> GetAll()
+        public static List<CentralLog> GetAll(string centralId)
         {
             List<CentralLog> logs = new List<CentralLog>();
 
@@ -61,8 +61,11 @@ namespace DesitServer.Models.Central.Log
             {
                 MySqlCommand cmd = new MySqlCommand();
                 cmd.Connection = connection;
-                cmd.CommandText = "SELECT * FROM central_log";
+                cmd.CommandText = "SELECT * FROM central_log WHERE central_ID = @IdCentral ORDER BY fecha DESC LIMIT 20";
                 cmd.CommandType = System.Data.CommandType.Text;
+
+                cmd.Parameters.AddWithValue("@IdCentral", centralId);
+
                 connection.Open();
 
                 using (MySqlDataReader reader = cmd.ExecuteReader())

@@ -21,7 +21,7 @@ namespace DesitServer.Models.Administrador.Log
             TipoLog = tipoLog;
         }
 
-        public static List<AdminLog> GetAll()
+        public static List<AdminLog> GetAll(string nombreAdmin)
         {
             List<AdminLog> logs = new List<AdminLog>();
 
@@ -29,8 +29,10 @@ namespace DesitServer.Models.Administrador.Log
             {
                 MySqlCommand cmd = new MySqlCommand();
                 cmd.Connection = connection;
-                cmd.CommandText = "SELECT * FROM admin_log";
+                cmd.CommandText = "SELECT * FROM admin_log WHERE admin_nombre = @NombreAdmin";
                 cmd.CommandType = System.Data.CommandType.Text;
+
+                cmd.Parameters.AddWithValue("@NombreAdmin", nombreAdmin);
                 connection.Open();
 
                 using (MySqlDataReader reader = cmd.ExecuteReader())

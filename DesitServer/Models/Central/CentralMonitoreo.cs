@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using MySql.Data.MySqlClient;
 using DesitServer.Models.BarrioNS;
-using DesitServer.Models.Central.Log;
 
 namespace DesitServer.Models.Central
 {
@@ -16,22 +15,7 @@ namespace DesitServer.Models.Central
         public String CentralID { get; set; }
         public String Contraseña { get; set; }
         public Barrio Barrio { get; set; }
-
-        public static List<object> GetCentralesConEstado()
-        {
-            List<CentralMonitoreo> centrales = GetAll();
-            List<object> res = new List<object>();
-
-            foreach (CentralMonitoreo central in centrales)
-            {
-                CentralLog log = CentralLog.GetLast(central);
-                int estado = 0;
-                if (log != null) estado = log.TipoLog.TipoLogId.GetValueOrDefault();
-
-                res.Add(new { Id = central.CentralID, Barrio = central.Barrio.Nombre, estado});
-            }
-            return res;
-        }
+        
 
         public static List<CentralMonitoreo> GetAll()
         {
